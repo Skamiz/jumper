@@ -1,0 +1,62 @@
+this is just a scrible pad
+
+nodes
+    generic terain - grey
+    platforms of intended route - orange
+    checkpoint - not yet persistent
+    reset to checkpoint on touch - red
+    glass
+    lightsources - sealanterns?
+
+
+
+    water - blue
+    barier which removes items
+    nodes which can be picked up/moved - gameplay consideration
+        only placable against certain nodes
+
+item
+    returner - returns you to last checkpoint
+
+    golden feather - add/set velocity in direction of look, has cooldown
+        (totaly think about recreating that one TNT minecraft game)
+        - would reqire pysocs override to be playable
+    parachute - slowfall
+
+    grapling hook?
+    enderpearl?
+    gun?
+
+mechanics
+    blocks which switch between on and of states
+
+    item dipenser
+
+    powerups to jupheight/speed/...
+    special powers - shapeshifting
+        would make my game extra spetial
+    locked doors/bariers
+    teleportation
+    something to set the /home position
+    timed doors
+    on rejoin move to last checkpoint?
+
+    nodes which become invisible if a player is too close
+        detect by abm then manipulate by global step
+
+
+    skins awiable as a reward for copleating a level
+
+    shooting targets as trigger
+
+
+    eventual autogeneration of levels
+
+terrain
+    default terrain is a flat at and bellow 0 y
+
+mods
+    creative
+    worldedit for quick construction
+    exschem - actualy probably unneccesary
+    something to manage player effects/physics overrides
