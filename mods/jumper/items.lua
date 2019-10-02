@@ -3,6 +3,7 @@ local mod_prefix = mod_name .. ":"
 local texture_prefix = mod_name .. "_"
 local multiplier = 15
 
+-- Potential mechanic, hammpered by how the pysiscs override messes with horizontal velocities
 minetest.register_craftitem(mod_prefix .. "feather", {
     description = "Feather",
     inventory_image = texture_prefix .. "feather.png",
@@ -42,7 +43,7 @@ minetest.register_craftitem(mod_prefix .. "builders_hand", {
         },
     },
 })
-
+-- just an item for testing random code snipets
 minetest.register_craftitem(mod_prefix .. "debug", {
     description = "Not a bug",
     inventory_image = texture_prefix .. "feather.png",

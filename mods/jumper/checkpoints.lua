@@ -1,3 +1,7 @@
+-- Setting/removing and moving player to checkpoints + fancy paritcle effects
+-- Potentioaly exctract this into it's ovn mod so jump'n run maps made in other games can be freed from the /sethome, /home bullshit
+
+-- Also persistency across game sesions pls
 local checkpoints = {}
 local particlespawners = {}
 
@@ -31,6 +35,7 @@ function set_checkpoint(player)
     particlespawners[name] = id
     minetest.chat_send_player(name, "Your checkpoint has been set.")
 end
+
 function remove_checkpoint(player)
     local name = player:get_player_name()
     checkpoints[name] = nil

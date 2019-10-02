@@ -21,6 +21,7 @@ function get_switcher()
             if node.name == "jumper:platformB_off" then
                 minetest.set_node(pos, {name = "jumper:platformB_on"})
             end
+            -- this is stupid, but the only way I know how to make it work
             minetest.after(1, function() state = false end)
         else
             if node.name == "jumper:platformA_off" then

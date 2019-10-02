@@ -8,7 +8,7 @@ dofile(minetest.get_modpath(mod_name).."/abms.lua")
 
 minetest.register_craftitem(":", {
     inventory_image = "jumper_hand.png",
-    -- What does this do?
+    -- What does this do? MTG has it for some reason,but the documentation doesn't meniton it.
     -- type = "none",
 })
 
@@ -27,7 +27,7 @@ minetest.register_on_joinplayer(
         end
 
         inv_ref:set_size("hand", 1)
-
+        -- note to self, extract this into it's own function
         if creative_mode_cache then
             privs.fast = true
             privs.fly = true
@@ -50,6 +50,8 @@ minetest.register_globalstep(
                 local pos = player:get_pos()
                 pos.y = pos.y - 0.1
                 local node = minetest.get_node(pos)
+                --this needs to be made registerable so it doesn't grow into a mess
+                --also moved somewhere else
                 if node.name == "jumper:checkpoint" then
                     set_checkpoint(player)
                 end

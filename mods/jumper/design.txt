@@ -1,4 +1,4 @@
-this is just a scrible pad
+this is just a scrible pad no promises of any of this getting included
 
 nodes
     generic terain - grey
@@ -20,7 +20,7 @@ item
 
     golden feather - add/set velocity in direction of look, has cooldown
         (totaly think about recreating that one TNT minecraft game)
-        - would reqire pysocs override to be playable
+        - would reqire pysics override to be playable
     parachute - slowfall
 
     grapling hook?

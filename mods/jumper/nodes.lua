@@ -45,6 +45,7 @@ minetest.register_node(mod_prefix .."ice", {
 	description = "Ice",
 	drawtype = "glasslike",
 	tiles = {texture_prefix .. "ice.png"},
+	-- for some reason this is neccesary since otherwise the node goes full on invissible in the inventory
 	inventory_image = "[inventorycube{jumper_ice.png&[noalpha{jumper_ice.png&[noalpha{jumper_ice.png&[noalpha",
 	use_texture_alpha = true,
 	paramtype = "light",
@@ -74,7 +75,7 @@ minetest.register_node(mod_prefix .."bouncy", {
 	tiles = {texture_prefix .. "bouncy.png"},
 	groups = {mapmaker = 1, bouncy = 90},
 })
--- Timer nodes
+-- Timer nodes(with awfull naming scheme, but from a players point it makes no difference so it's good enough for now)
 minetest.register_node(mod_prefix .."platformA_on", {
 	description = "Platform A on",
 	tiles = {texture_prefix .. "platformA_on.png"},
