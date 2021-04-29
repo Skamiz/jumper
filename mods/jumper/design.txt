@@ -1,23 +1,47 @@
 this is just a scrible pad no promises of any of this getting included
 
+when sneaking the player is snapped to the colision box of the node they are standing in
++ the colision box can be sufficiently offset to transport the player into another node
+=> super fast transport
+find out in how far this works veritically
+
+TODO:
+make it so the telepad can be filled by rightclicking it with a valid position ticket
+	make a visual distinction between an active and inactive telepad
+
+
+
+coletibles (coins)
+	something for gameplay like yooka lehlee and similar
+
+temporary flight - gradualy recharges while standing on ground
+
+2*6*16 walkways?
+
+consider removing momentum when teleporting to checkpoint
+	on the other hand this could be used as a legitimate tactic
+		in which case it should get a dedicated stuff for it instead of checkpoints (maybe)
+
+TODO:
 nodes
-    generic terain - grey
-    platforms of intended route - orange
-    checkpoint - not yet persistent
-    reset to checkpoint on touch - red
-    glass
-    lightsources - sealanterns?
+	a trophy to put at the end of the course
 
+    a node on which sneaking doesn't work -'fufufu'
+		requires physics override?
 
+    sneak only bridges - might work with 0 thicknes colisionbox?
 
     water - blue
     barier which removes items
     nodes which can be picked up/moved - gameplay consideration
         only placable against certain nodes
 
-item
-    returner - returns you to last checkpoint
+	node which sets the players pysics override when the player walks over it
+		with option to make it temporary?
 
+	slippery ice - has no friction(po.speed = 0)
+
+item
     golden feather - add/set velocity in direction of look, has cooldown
         (totaly think about recreating that one TNT minecraft game)
         - would reqire pysics override to be playable
@@ -28,13 +52,18 @@ item
     gun?
 
 mechanics
-    blocks which switch between on and of states
+	sprinting -- example values: 'p:set_physics_override(1.8, 1.1, 1)'
+
+	a way to place nodes midair
+		travers a line in look direction and place in first node which doesn't intersect with the placer
+
+	particle bridge emitter (what happened during the develpment of in world chiseling)
 
     item dipenser
 
     powerups to jupheight/speed/...
     special powers - shapeshifting
-        would make my game extra spetial
+        would make my game extra special
     locked doors/bariers
     teleportation
     something to set the /home position
@@ -45,18 +74,45 @@ mechanics
         detect by abm then manipulate by global step
 
 
-    skins awiable as a reward for copleating a level
+    skins awiable as a reward for completing a level
 
     shooting targets as trigger
 
-
     eventual autogeneration of levels
-
-terrain
-    default terrain is a flat at and bellow 0 y
 
 mods
     creative
     worldedit for quick construction
     exschem - actualy probably unneccesary
     something to manage player effects/physics overrides
+
+
+
+DONE:
+
+nodes
+    generic terain - grey
+    platforms of intended route - orange
+
+    reset to checkpoint on touch - red
+    glass
+    lightsources - sealanterns?
+
+
+item
+    returner - returns you to last checkpoint
+
+mechanics
+	checkpoint
+
+	timer
+		start
+			step on to start counting time
+		end
+			step on to stop timer
+		display current timer time in the hud
+
+    blocks which switch between on and of states
+
+terrain
+    default terrain is a flat at and bellow 0 y

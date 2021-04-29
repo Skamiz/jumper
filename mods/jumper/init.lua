@@ -1,10 +1,13 @@
 local mod_name = minetest.get_current_modname()
-dofile(minetest.get_modpath(mod_name).."/misc.lua")
-dofile(minetest.get_modpath(mod_name).."/checkpoints.lua")
-dofile(minetest.get_modpath(mod_name).."/nodes.lua")
-dofile(minetest.get_modpath(mod_name).."/items.lua")
-dofile(minetest.get_modpath(mod_name).."/mapgen.lua")
-dofile(minetest.get_modpath(mod_name).."/abms.lua")
+local mod_path = minetest.get_modpath(mod_name)
+dofile(mod_path.."/misc.lua")
+dofile(mod_path.."/commands.lua")
+dofile(mod_path.."/timers.lua")
+dofile(mod_path.."/checkpoints.lua")
+dofile(mod_path.."/nodes.lua")
+dofile(mod_path.."/items.lua")
+dofile(mod_path.."/mapgen.lua")
+dofile(mod_path.."/abms.lua")
 
 minetest.register_craftitem(":", {
     inventory_image = "jumper_hand.png",
@@ -43,22 +46,28 @@ minetest.register_on_joinplayer(
 )
 
 
+local nodes = {}
+
+-- nodes which use this mechanic are cached here to shorten lookup time
+minetest.register_on_mods_loaded(function()
+	for name, def in pairs(minetest.registered_nodes) do
+		if def.groups.on_walkover then
+			nodes[name] = def._on_walkover
+		end
+	end
+end)
+
 minetest.register_globalstep(
     function(dtime)
-        for _, v in pairs(minetest.get_connected_players()) do
-            for _, player in pairs(minetest.get_connected_players()) do
-                local pos = player:get_pos()
-                pos.y = pos.y - 0.1
-                local node = minetest.get_node(pos)
-                --this needs to be made registerable so it doesn't grow into a mess
-                --also moved somewhere else
-                if node.name == "jumper:checkpoint" then
-                    set_checkpoint(player)
-                end
-                if node.name == "jumper:danger" then
-                    move_to_checkpoint(player)
-                end
-            end
+        for _, player in pairs(minetest.get_connected_players()) do
+            local pos = player:get_pos()
+            pos.y = pos.y - 0.1
+			pos = vector.round(pos)
+            local node = minetest.get_node(pos)
+
+			if nodes[node.name] then
+				nodes[node.name](player, pos)
+			end
         end
     end
 )

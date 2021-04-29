@@ -2,7 +2,7 @@
 A game for the minetest engine, which is focused on jump'n run gameplay.
 
 ##Curent game mechanics
-Besides the normal mechanics featured in most minetest gemes, Jumper currently offers:
+Besides the normal mechanics featured in most minetest games, Jumper currently offers:
 -A checkpoint system.
 -Two nodes which alternatingly become unwalkable.
 
@@ -16,13 +16,13 @@ Disable creative mode
 Tie the game to the map by making it a:
 (form the lua_api.txt)
 ###World-specific game
-It is possible to include a game in a world; in this case, no mods or
+"It is possible to include a game in a world; in this case, no mods or
 games are loaded or checked from anywhere else.
 
 This is useful for e.g. adventure worlds and happens if the `<worldname>/game/`
 directory exists.
 
-Mods should then be placed in `<worldname>/game/mods/`.
+Mods should then be placed in `<worldname>/game/mods/`."
 
 
-This prevents the map from breaking when the game changes nodename definitions/mechenics/etc...
+This prevents the map from breaking when the game changes nodename definitions/mechanics/etc...

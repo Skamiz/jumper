@@ -1,8 +1,7 @@
 -- Setting/removing and moving player to checkpoints + fancy paritcle effects
--- Potentioaly exctract this into it's ovn mod so jump'n run maps made in other games can be freed from the /sethome, /home bullshit
+-- Potentioaly exctract this into it's own mod so jump'n run maps made in other games can be freed from the /sethome, /home bullshit
 
--- Also persistency across game sesions pls
-local checkpoints = {}
+-- note: after rejoining the game the current checkpoint has no particles
 local particlespawners = {}
 
 local particlespawner_deffinition = {
@@ -16,19 +15,22 @@ local particlespawner_deffinition = {
 }
 
 function set_checkpoint(player)
+	local meta = player:get_meta()
     local name = player:get_player_name()
     local pos = player:get_pos()
     pos.x = round(pos.x)
     pos.z = round(pos.z)
     pos.y = math.floor(pos.y) + 0.5
-    if checkpoints[name] and vector.equals(checkpoints[name], pos) then
+
+	local string_pos = minetest.pos_to_string(pos)
+    if string_pos and meta:get_string("checkpoint") == string_pos then
         return
     end
     particlespawner_deffinition.minpos = {x= pos.x - 0.5, y = pos.y, z = pos.z - 0.5}
     particlespawner_deffinition.maxpos = {x= pos.x + 0.5, y = pos.y + 2 , z = pos.z + 0.5}
     particlespawner_deffinition.playername = name
     local id = minetest.add_particlespawner(particlespawner_deffinition)
-    checkpoints[name] = pos
+	meta:set_string("checkpoint", string_pos)
     if particlespawners[name] then
         minetest.delete_particlespawner(particlespawners[name])
     end
@@ -37,16 +39,19 @@ function set_checkpoint(player)
 end
 
 function remove_checkpoint(player)
+	local meta = player:get_meta()
+	meta:set_string("checkpoint", "")
+
     local name = player:get_player_name()
-    checkpoints[name] = nil
     minetest.delete_particlespawner(particlespawners[name])
     minetest.chat_send_player(name, "Your checkpoint has been removed.")
 end
+
 function move_to_checkpoint(player)
-    local name = player:get_player_name()
-    if not checkpoints[name] then
-        minetest.chat_send_player(name, "You currently don't have a checkpoint.")
-        return
+	local meta = player:get_meta()
+    if meta:contains("checkpoint") then
+		player:set_pos(minetest.string_to_pos(meta:get_string("checkpoint")))
+	else
+		minetest.chat_send_player(player:get_player_name(), "You currently don't have a checkpoint.")
     end
-    player:set_pos(checkpoints[name])
 end

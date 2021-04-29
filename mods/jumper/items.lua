@@ -43,6 +43,36 @@ minetest.register_craftitem(mod_prefix .. "builders_hand", {
         },
     },
 })
+
+
+minetest.register_craftitem(mod_prefix .. "pos_ticket", {
+    description = "Holds a position\nplace for 'above' position\npunch for 'under' position",
+    inventory_image = "jumper_pos_ticket.png",
+    -- stack_max = 1,
+	on_place = function(itemstack, placer, pointed_thing)
+		local meta = itemstack:get_meta()
+		if meta:contains("pos") then return end
+		local pos = pointed_thing.above
+		meta:set_string("description", "Position" .. minetest.pos_to_string(pos) .. "\nsneak + use to clear position")
+		meta:set_string("pos", minetest.pos_to_string(pos))
+		return itemstack
+	end,
+	on_use = function(itemstack, user, pointed_thing)
+		local meta = itemstack:get_meta()
+		if meta:contains("pos") then return end
+		local pos = pointed_thing.under
+		meta:set_string("description", "Position" .. minetest.pos_to_string(pos) .. "\nsneak + use to clear position")
+		meta:set_string("pos", minetest.pos_to_string(pos))
+		return itemstack
+	end,
+	on_secondary_use = function(itemstack, user, pointed_thing)
+		if not user:get_player_control().sneak then return end
+		local meta = itemstack:get_meta()
+		meta:set_string("description", "")
+		meta:set_string("pos", "")
+		return itemstack
+	end,
+})
 -- just an item for testing random code snipets
 minetest.register_craftitem(mod_prefix .. "debug", {
     description = "Not a bug",
