@@ -14,12 +14,12 @@ local particlespawner_deffinition = {
     maxsize = 1.5,
 }
 
-function set_checkpoint(player)
+function jumper.set_checkpoint(player)
 	local meta = player:get_meta()
     local name = player:get_player_name()
     local pos = player:get_pos()
-    pos.x = round(pos.x)
-    pos.z = round(pos.z)
+    pos.x = math.floor(pos.x + 0.5)
+    pos.z = math.floor(pos.z + 0.5)
     pos.y = math.floor(pos.y) + 0.5
 
 	local string_pos = minetest.pos_to_string(pos)
@@ -35,10 +35,11 @@ function set_checkpoint(player)
         minetest.delete_particlespawner(particlespawners[name])
     end
     particlespawners[name] = id
-    minetest.chat_send_player(name, "Your checkpoint has been set.")
+	-- already conveyed via particals
+    -- minetest.chat_send_player(name, "Your checkpoint has been set.")
 end
 
-function remove_checkpoint(player)
+function jumper.remove_checkpoint(player)
 	local meta = player:get_meta()
 	meta:set_string("checkpoint", "")
 
@@ -47,7 +48,7 @@ function remove_checkpoint(player)
     minetest.chat_send_player(name, "Your checkpoint has been removed.")
 end
 
-function move_to_checkpoint(player)
+function jumper.move_to_checkpoint(player)
 	local meta = player:get_meta()
     if meta:contains("checkpoint") then
 		player:set_pos(minetest.string_to_pos(meta:get_string("checkpoint")))

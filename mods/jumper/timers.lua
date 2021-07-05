@@ -9,7 +9,7 @@ local function time_format(time)
 	return ts
 end
 
-function start_timer(player)
+function jumper.start_timer(player)
 	local name = player:get_player_name()
 	if players[name] then return end
 
@@ -25,11 +25,11 @@ function start_timer(player)
 	}
 end
 
-function end_timer(player)
+function jumper.end_timer(player)
 	local name = player:get_player_name()
 	if not players[name] then return end
 
-	minetest.chat_send_player(name, "You time was " .. time_format(minetest.get_gametime() - players[name].start_time))
+	minetest.chat_send_player(name, "Your time was " .. time_format(minetest.get_gametime() - players[name].start_time))
 	player:hud_remove(players[name].id)
 	players[name] = nil
 end

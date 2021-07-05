@@ -4,5 +4,5 @@ minetest.register_abm({
     interval = 3, --The sound file has been manualy synchronized with this.
     chance = 1,
     catch_up = false,
-    action = get_switcher() --is defined in misc.lua
+    action = jumper.get_switcher() --is defined in misc.lua
 })

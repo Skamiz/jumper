@@ -1,9 +1,13 @@
 local mod_name = minetest.get_current_modname()
 local mod_path = minetest.get_modpath(mod_name)
+
+jumper = {}
+
 dofile(mod_path.."/misc.lua")
 dofile(mod_path.."/commands.lua")
 dofile(mod_path.."/timers.lua")
 dofile(mod_path.."/checkpoints.lua")
+dofile(mod_path.."/shapes.lua")
 dofile(mod_path.."/nodes.lua")
 dofile(mod_path.."/items.lua")
 dofile(mod_path.."/mapgen.lua")
@@ -51,7 +55,7 @@ local nodes = {}
 -- nodes which use this mechanic are cached here to shorten lookup time
 minetest.register_on_mods_loaded(function()
 	for name, def in pairs(minetest.registered_nodes) do
-		if def.groups.on_walkover then
+		if def._on_walkover then
 			nodes[name] = def._on_walkover
 		end
 	end

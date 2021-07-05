@@ -9,9 +9,9 @@ TODO:
 make it so the telepad can be filled by rightclicking it with a valid position ticket
 	make a visual distinction between an active and inactive telepad
 
+seamless teleporter
 
-
-coletibles (coins)
+colectibles (coins)
 	something for gameplay like yooka lehlee and similar
 
 temporary flight - gradualy recharges while standing on ground
@@ -21,6 +21,8 @@ temporary flight - gradualy recharges while standing on ground
 consider removing momentum when teleporting to checkpoint
 	on the other hand this could be used as a legitimate tactic
 		in which case it should get a dedicated stuff for it instead of checkpoints (maybe)
+
+maybe have secrets in the form of people hidden in odd places which give you a random phrase when talked to
 
 TODO:
 nodes
@@ -36,7 +38,7 @@ nodes
     nodes which can be picked up/moved - gameplay consideration
         only placable against certain nodes
 
-	node which sets the players pysics override when the player walks over it
+	node which sets the players physics override when the player walks over it
 		with option to make it temporary?
 
 	slippery ice - has no friction(po.speed = 0)
@@ -54,9 +56,6 @@ item
 mechanics
 	sprinting -- example values: 'p:set_physics_override(1.8, 1.1, 1)'
 
-	a way to place nodes midair
-		travers a line in look direction and place in first node which doesn't intersect with the placer
-
 	particle bridge emitter (what happened during the develpment of in world chiseling)
 
     item dipenser
@@ -71,7 +70,9 @@ mechanics
     on rejoin move to last checkpoint?
 
     nodes which become invisible if a player is too close
-        detect by abm then manipulate by global step
+        detect by abm then manipulate by global step -- I have since forgotten what this is supposed to mean
+		lbm to turn invisible verion to visible one
+		maybe the invisible node has a timer which checks if it should turn back?
 
 
     skins awiable as a reward for completing a level
@@ -113,6 +114,9 @@ mechanics
 		display current timer time in the hud
 
     blocks which switch between on and of states
+
+	a way to place nodes midair
+		travers a line in look direction and place in first node which doesn't intersect with the placer
 
 terrain
     default terrain is a flat at and bellow 0 y

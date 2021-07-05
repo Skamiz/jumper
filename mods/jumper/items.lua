@@ -23,10 +23,9 @@ minetest.register_craftitem(mod_prefix .. "return", {
     inventory_image = texture_prefix .. "returner.png",
     stack_max = 1,
     on_use = function(itemstack, user, pointed_thing)
-        move_to_checkpoint(user)
+        jumper.move_to_checkpoint(user)
     end,
-    -- Makes item stack disappear until the inventory formspec is updated.
-    -- on_drop = dont_drop,
+    on_drop = function() end,
 })
 
 minetest.register_craftitem(mod_prefix .. "builders_hand", {
