@@ -149,3 +149,15 @@ function jumper.get_sign_rotation(player, pointed_thing)
 	end
 	return 0
 end
+
+function jumper.place_pillar(itemstack, placer, pointed_thing)
+		local pt = pointed_thing
+		local param2 = 0
+		if pt.above.x ~= pt.under.x then
+			param2 = 12
+		elseif pt.above.z ~= pt.under.z then
+			param2 = 4
+		end
+
+	return minetest.item_place(itemstack, placer, pointed_thing, param2)
+end

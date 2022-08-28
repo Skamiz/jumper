@@ -284,6 +284,7 @@ minetest.register_node(mod_prefix .."jump_only", {
 	drawtype = "nodebox",
 	tiles = {texture_prefix .. "jump_only.png"},
 	inventory_image = texture_prefix .. "jump_only.png",
+	paramtype = "light",
 	node_box = {type = "fixed", fixed = {{-0.5, 1.5, -0.5, 0.5, 1.5, 0.5}}},
 	-- collision_box = {type = "fixed", fixed = {{-0.5, 1.5, -0.5, 0.5, 1.5, 0.5}}},
 	selection_box = {type = "fixed", fixed = {{-0.5, -0.5, -0.5, 0.5, 1.5, 0.5}}},

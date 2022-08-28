@@ -32,6 +32,7 @@ minetest.register_craftitem(mod_prefix .. "builders_hand", {
     description = "A tool to make mapbreaking possible",
     inventory_image = "jumper_hand.png",
     stack_max = 1,
+	range = 50,
     tool_capabilities = {
         full_punch_interval = 1.5,
         max_drop_level = 1,

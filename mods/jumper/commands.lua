@@ -40,7 +40,7 @@ minetest.register_chatcommand("phys", {
 })
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-	if not formnname == modname .. ":physics_override" then return false end
+	if not formname == modname .. ":physics_override" then return false end
 	-- local player = minetest.get_player_by_name(player:)
 	local po = player:get_physics_override()
 	po.speed = fields.speed or po.speed

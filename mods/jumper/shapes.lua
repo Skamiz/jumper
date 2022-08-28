@@ -1,5 +1,5 @@
 --[[
-- stairs?
+TODO: make stairs and slabs world aligned
 --]]
 
 local slab_preset = {
@@ -12,6 +12,28 @@ local slab_preset = {
 }
 function jumper.register_slab(node_name, node_def)
 	for property, value in pairs(slab_preset) do
+		if node_def[property] == nil then
+			node_def[property] = value
+		end
+	end
+	minetest.register_node(node_name, node_def)
+end
+local stair_preset = {
+	drawtype = "nodebox",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, 0, -0, 0.5, 0.5, 0.5},
+			{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+		},
+	},
+	on_place = minetest.rotate_node,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	node_placement_prediction = "",
+}
+function jumper.register_stair(node_name, node_def)
+	for property, value in pairs(stair_preset) do
 		if node_def[property] == nil then
 			node_def[property] = value
 		end
