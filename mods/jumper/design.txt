@@ -5,6 +5,8 @@ when sneaking the player is snapped to the colision box of the node they are sta
 => super fast transport
 find out in how far this works veritically
 
+Do bouncy nodes act on entities other then the player?
+
 TODO:
 make it so the telepad can be filled by rightclicking it with a valid position ticket
 	make a visual distinction between an active and inactive telepad

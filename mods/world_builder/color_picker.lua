@@ -57,14 +57,12 @@ local function show_test_fs(player)
 end
 
 minetest.register_craftitem(modname ..":test_item", {
-	description = "test item",
-	-- tiles = {"wb_grass.png", "wb_stone.png", "wb_planks.png", "wb_stone.png"},
-	inventory_image = "wb_stone.png",
+	description = "TEST ITEM",
+	inventory_image = "wb_clipboard.png",
 	stack_max = 1,
 	on_use = function(itemstack, user, pointed_thing)
 		show_test_fs(user)
 	end,
 	on_place = function(itemstack, placer, pointed_thing)
-
 	end,
 })

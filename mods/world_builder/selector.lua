@@ -18,6 +18,7 @@ function world_builder.set_area(player, pos_1, pos_2)
 	set_indicator_position(player, "pos_2", pos_2)
 end
 
+local one_node_vector = vector.new(1.001, 1.001, 1.001)
 local function update_selection(player, pos_1, pos_2)
 	local p_data = players[player]
 
@@ -29,6 +30,7 @@ local function update_selection(player, pos_1, pos_2)
 		if not (pos_1 or pos_2) then
 			if p_data.selection then
 				p_data.selection:remove()
+				p_data.selection = nil
 			end
 		end
 		return
@@ -36,14 +38,14 @@ local function update_selection(player, pos_1, pos_2)
 
 	if not p_data.selection or p_data.selection:get_pos() == nil then
 		p_data.selection = minetest.add_entity(player:get_pos(), modprefix .."selector")
-		local t = "wb_pixel.png^[colorize:#ff0^[opacity:129"
+		local t = "wb_pixel.png^[colorize:#c8c837^[opacity:129"
 		p_data.selection:set_properties({textures = {t, t, t, t, t, t}})
 	end
 
 	local minp, maxp = vector.sort(pos_1, pos_2)
 
 	local dif = maxp - minp
-	p_data.selection:set_properties({visual_size = (dif + vector.new(1.001, 1.001, 1.001))})
+	p_data.selection:set_properties({visual_size = (dif + one_node_vector)})
 	local mid = dif / 2
 	p_data.selection:set_pos(minp + mid)
 end
@@ -62,6 +64,7 @@ local function set_indicator_position(player, indicator, pos)
 	update_selection(player)
 end
 
+-- also could have used marker instead of indicator, oh well
 local function remove_indicator(player, indicator)
 	local ind = players[player][indicator]
 	ind.pos = nil
@@ -80,7 +83,12 @@ local function use_selector(player, indicator)
 end
 
 minetest.register_craftitem(modprefix .."selector", {
-	description = "Area Selector",
+	description = "Area Selector"
+			.. "\n" .. minetest.colorize("#e3893b", "LMB") .. " Set pos_1"
+			.. "\n" .. minetest.colorize("#3dafd2", "RMB") .. " Set pos_2"
+			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#e3893b", "LMB") .. " Unset pos_1"
+			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. " Unset pos_2"
+			,
 	inventory_image = "wb_selector.png",
 	on_use = function(itemstack, user, pointed_thing)
 		use_selector(user, "pos_1")
@@ -112,12 +120,11 @@ end
 
 
 minetest.register_on_joinplayer(function(player, last_login)
-	-- local name = player:get_player_name()
 	players[player] = {
 		selection = nil,
 		pointer = {tex = "wb_pos_pointer.png^[opacity:129"},
-		pos_1 = {tex = "wb_pixel.png^[colorize:#e3893b^[opacity:129"},
-		pos_2 = {tex = "wb_pixel.png^[colorize:#3dafd2^[opacity:129"},
+		pos_1 = {tex = "wb_pos_1.png^[colorize:#e3893b^[opacity:129"},
+		pos_2 = {tex = "wb_pos_2.png^[colorize:#3dafd2^[opacity:129"},
 	}
 end)
 
@@ -149,7 +156,10 @@ minetest.register_globalstep(function(dtime)
 
 		elseif p_data.pointer.pos then
 			remove_indicator(player, "pointer")
-			p_data.selection:remove()
+			if p_data.selection then
+				p_data.selection:remove()
+				p_data.selection = nil
+			end
 		end
 	end
 end)
