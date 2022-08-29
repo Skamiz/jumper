@@ -84,11 +84,11 @@ end
 
 minetest.register_craftitem(modprefix .."selector", {
 	description = "Area Selector"
-			.. "\n" .. minetest.colorize("#e3893b", "LMB") .. " Set pos_1"
-			.. "\n" .. minetest.colorize("#3dafd2", "RMB") .. " Set pos_2"
-			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#e3893b", "LMB") .. " Unset pos_1"
-			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. " Unset pos_2"
-			,
+			.. "\n" .. minetest.colorize("#e3893b", "LMB") .. ": Set pos_1."
+			.. "\n" .. minetest.colorize("#3dafd2", "RMB") .. ": Set pos_2."
+			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#e3893b", "LMB") .. ": Unset pos_1."
+			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. ": Unset pos_2."
+	,
 	inventory_image = "wb_selector.png",
 	on_use = function(itemstack, user, pointed_thing)
 		use_selector(user, "pos_1")

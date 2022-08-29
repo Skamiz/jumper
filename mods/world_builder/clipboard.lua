@@ -84,11 +84,15 @@ local function reveal_preview(player)
 	for _, child in pairs(p_data.obj:get_children()) do
 		child:set_properties({is_visible = true})
 	end
+	if p_data.fixed_pos then
+		p_data.obj:set_pos(p_data.fixed_obj_pos)
+	end
 end
 
 -- -----------------------------------------------
 local function move_preview(player, pos)
 	local p_data = players[player]
+	if p_data.fixed_pos then return end
 	pos = pos + p_data.options.offset
 	if not pos:equals(p_data.obj:get_pos()) then
 		p_data.obj:set_pos(pos)
@@ -180,8 +184,14 @@ local function copy_area_to_clipboard(player)
 end
 
 local function place_from_clipboard(player, pos)
-	local schem = players[player].schem
-	local options = players[player].options
+	local p_data = players[player]
+	pos = p_data.fixed_pos or pos
+	p_data.fixed_pos = nil
+	p_data.fixed_obj_pos = nil
+
+
+	local schem = p_data.schem
+	local options = p_data.options
 	if not schem.data then
 		minetest.chat_send_player(player:get_player_name(), "Nothing to place. The clipboard is empty.")
 	end
@@ -211,23 +221,52 @@ local function show_clipboard_fs(player)
 	minetest.show_formspec(player:get_player_name(), modprefix .. "clipboard", fs)
 end
 
+local function clipboard_lmb(player)
+	if player:get_player_control().aux1 then
+		show_clipboard_fs(player)
+	elseif player:get_player_control().sneak then
+		rotate_schematic(player, -90)
+	else
+		copy_area_to_clipboard(player)
+	end
+end
+
+local function clipboard_rmb(player)
+	local p_data = players[player]
+	local pos = vector.round(world_builder.get_looked_pos(player, players[player].distance))
+	if player:get_player_control().aux1 then
+		if p_data.fixed_pos then
+			p_data.fixed_pos = nil
+			p_data.fixed_obj_pos = nil
+		elseif p_data.obj then
+			p_data.fixed_pos = pos
+			p_data.fixed_obj_pos = p_data.obj:get_pos()
+		end
+	elseif player:get_player_control().sneak then
+		rotate_schematic(player, 90)
+	else
+		place_from_clipboard(player, pos)
+	end
+end
 
 minetest.register_craftitem(modprefix .."clipboard", {
-	description = "Area Clipboard",
+	description = "Area Clipboard"
+			.. "\n" .. minetest.colorize("#e3893b", "LMB") .. ": Copy area to clipboard."
+			.. "\n" .. minetest.colorize("#3dafd2", "RMB") .. ": Place clipboard schem."
+			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#e3893b", "LMB") .. ": Rotate right."
+			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. ": Rotate left."
+			.. "\n" .. minetest.colorize("#67a943", "Ctrl") .. " + " .. minetest.colorize("#e3893b", "LMB") .. ": Clipboard options."
+			.. "\n" .. minetest.colorize("#67a943", "Ctrl") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. ": Fixate preview."
+	,
 	inventory_image = "wb_clipboard.png",
 	on_use = function(itemstack, user, pointed_thing)
-		if user:get_player_control().aux1 then
-			show_clipboard_fs(user)
-		else
-			copy_area_to_clipboard(user)
-		end
+		clipboard_lmb(user)
 	end,
 	on_place = function(itemstack, placer, pointed_thing)
-		place_from_clipboard(placer, vector.round(world_builder.get_looked_pos(placer, players[placer].distance)))
+		clipboard_rmb(placer)
 	end,
 	on_secondary_use = function(itemstack, user, pointed_thing)
-		-- TODO: rotate schematic
-		rotate_schematic(user, 90)
+		clipboard_rmb(user)
 	end,
 })
 
@@ -248,6 +287,8 @@ minetest.register_on_joinplayer(function(player, last_login)
 			},
 			flag_string = "place_center_x, place_center_z",
 		},
+		fixed_pos = nil,
+		fixed_obj_pos = nil,
 		distance = 5,
 		obj = nil,
 		visible = nil,
