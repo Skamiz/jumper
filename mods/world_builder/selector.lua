@@ -11,12 +11,7 @@ function world_builder.get_area(player)
 	return p_data.pos_1.pos, p_data.pos_2.pos
 end
 
-function world_builder.set_area(player, pos_1, pos_2)
-	local p_data = players[player]
 
-	set_indicator_position(player, "pos_1", pos_1)
-	set_indicator_position(player, "pos_2", pos_2)
-end
 
 local one_node_vector = vector.new(1.001, 1.001, 1.001)
 local function update_selection(player, pos_1, pos_2)
@@ -64,6 +59,13 @@ local function set_indicator_position(player, indicator, pos)
 	update_selection(player)
 end
 
+function world_builder.set_area(player, pos_1, pos_2)
+	local p_data = players[player]
+
+	set_indicator_position(player, "pos_1", pos_1)
+	set_indicator_position(player, "pos_2", pos_2)
+end
+
 -- also could have used marker instead of indicator, oh well
 local function remove_indicator(player, indicator)
 	local ind = players[player][indicator]
@@ -89,6 +91,7 @@ minetest.register_craftitem(modprefix .."selector", {
 			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#e3893b", "LMB") .. ": Unset pos_1."
 			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. ": Unset pos_2."
 	,
+	short_description = "Area Selector",
 	inventory_image = "wb_selector.png",
 	on_use = function(itemstack, user, pointed_thing)
 		use_selector(user, "pos_1")

@@ -1,14 +1,9 @@
 --[[
 Goal:
 	automatic procentage display
-	inventory to pick nodes out of
-	prevent non-nodes being placed into the selection
 
-	calls nodes original on_place
-	a single node
 	checkbox for replacing instead of painting
-	10 slots for weighted random placing
-	custom name for itemstack
+		make it possible to change this through a key + use kombo, so the forspec doesn't have to be opened
 --]]
 local function print_table(t)
 	for k, v in pairs(t) do
