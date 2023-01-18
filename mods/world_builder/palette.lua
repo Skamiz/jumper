@@ -1,6 +1,10 @@
 local modname = minetest.get_current_modname()
 
 -- is it possible ot make it so that scrolling in the page number showing area scrolls through the pages?
+-- make a pallete item, which then can be used in place of other nodes as desired
+
+-- pallete object which can display itself as a formspec element, on click opens menu which allows editing the pallete
+-- pallete editable from pallete ?and player inv
 
 palette = {}
 local players = {}

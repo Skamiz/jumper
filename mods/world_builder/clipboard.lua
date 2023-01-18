@@ -4,6 +4,9 @@ local modprefix = modname .. ":"
 
 local players = {}
 
+-- TODO: gridsnapp
+-- TODO: individual clipboards
+-- TODO: move schematic preview to it's own file
 
 local schem_path = minetest.get_worldpath() .. "/schematics"
 minetest.mkdir(schem_path)
@@ -63,6 +66,9 @@ local function make_preview(player, pos)
 
 	for i in va:iterp(vector_1, schem.size) do
 		local name = schem.data[i].name
+		-- TODO: instead of randomly hide nodes
+		-- 		1) completely enclosed
+		-- 		2) cut out entire slices, so the rest remains more cohesive
 		if name ~= "air" and math.random() < (1000/nnodes) then
 			local prev = minetest.add_entity(pos, modprefix .."preview")
 			prev:set_properties({
@@ -96,6 +102,8 @@ local function reveal_preview(player)
 end
 
 -- -----------------------------------------------
+
+-- preview positioning section
 local function move_preview(player, pos)
 	local p_data = players[player]
 	if p_data.fixed_pos then return end
@@ -104,7 +112,6 @@ local function move_preview(player, pos)
 		p_data.obj:set_pos(pos)
 	end
 end
-
 
 -- options section
 local function update_flag_string(player)
@@ -118,7 +125,6 @@ local function update_flag_string(player)
 	end
 	opt.flag_string = table.concat(t, ", ")
 end
-
 
 local function update_offset(player)
 	local opt = players[player].options
@@ -156,6 +162,7 @@ local function rotate_schematic(player, angle)
 	update_offset(player)
 end
 
+-- TODO: function for making schematics from two possibtions
 -- clipboard section
 local function copy_area_to_clipboard(player)
 	local pos1, pos2 = world_builder.get_area(player)
@@ -270,6 +277,7 @@ local function show_clipboard_fs(player)
 	.. "checkbox[0,1.75;place_center_y;place_center_y;" .. tostring(opt.flags.place_center_y) .. "]"
 	.. "checkbox[0,2.25;place_center_z;place_center_z;" .. tostring(opt.flags.place_center_z) .. "]"
 	.. "container[0,3]"
+	-- .. "set_focus[schem_name;true]"
 	.. "field[0,0;2,0.75;schem_name;file name;" .. players[player].formspec.name .. "]"
 	.. "button[2.25,0;1.5,0.75;save;Save]"
 	.. "tooltip[save;Save schematic to file]"
@@ -287,7 +295,7 @@ local function show_clipboard_fs(player)
 	minetest.show_formspec(player:get_player_name(), modprefix .. "clipboard", fs)
 end
 
-
+-- TODO: check that object exists before atempting to rotate it
 local function clipboard_lmb(player)
 	if player:get_player_control().aux1 then
 		copy_area_to_clipboard(player)

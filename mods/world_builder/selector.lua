@@ -2,6 +2,8 @@ local modname = minetest.get_current_modname()
 local modprefix = modname .. ":"
 
 -- TODO: allow players to configure their selector/indicator colors
+-- TODO: a hud showing size of selected area, position coordinates
+-- TODO: make deselection use 'control' rather then 'sneak'
 
 local players = {}
 
@@ -76,7 +78,7 @@ local function remove_indicator(player, indicator)
 end
 
 local function use_selector(player, indicator)
-	if player:get_player_control().sneak then
+	if player:get_player_control().aux1 then
 		remove_indicator(player, indicator)
 	else
 		local pos = vector.round(world_builder.get_looked_pos(player, 5))
@@ -88,8 +90,8 @@ minetest.register_craftitem(modprefix .."selector", {
 	description = "Area Selector"
 			.. "\n" .. minetest.colorize("#e3893b", "LMB") .. ": Set pos_1."
 			.. "\n" .. minetest.colorize("#3dafd2", "RMB") .. ": Set pos_2."
-			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#e3893b", "LMB") .. ": Unset pos_1."
-			.. "\n" .. minetest.colorize("#ff7070", "Shift") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. ": Unset pos_2."
+			.. "\n" .. minetest.colorize("#67a943", "Ctrl") .. " + " .. minetest.colorize("#e3893b", "LMB") .. ": Unset pos_1."
+			.. "\n" .. minetest.colorize("#67a943", "Ctrl") .. " + " .. minetest.colorize("#3dafd2", "RMB") .. ": Unset pos_2."
 	,
 	short_description = "Area Selector",
 	inventory_image = "wb_selector.png",

@@ -1,5 +1,8 @@
 --[[
 Goal:
+	TODO: param2 override
+	TODO: on use imediatelly remove pointed node?
+	TODO: placement mode which works by distance like area selector
 	automatic procentage display
 
 	checkbox for replacing instead of painting
