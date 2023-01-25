@@ -4,6 +4,7 @@ Goal:
 	TODO: on use imediatelly remove pointed node?
 	TODO: placement mode which works by distance like area selector
 	automatic procentage display
+	TODO:aux1 + punch to toggle replace mode? - nope punching can be only punching
 
 	checkbox for replacing instead of painting
 		make it possible to change this through a key + use kombo, so the forspec doesn't have to be opened

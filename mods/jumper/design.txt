@@ -8,6 +8,8 @@ find out in how far this works veritically
 Do bouncy nodes act on entities other then the player?
 
 TODO:
+node with 0 fall damage
+
 make it so the telepad can be filled by rightclicking it with a valid position ticket
 	make a visual distinction between an active and inactive telepad
 

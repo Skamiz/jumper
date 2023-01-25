@@ -7,113 +7,27 @@ local players = {}
 -- TODO: gridsnapp
 -- TODO: individual clipboards
 -- TODO: move schematic preview to it's own file
+-- TODO: sometimes the ghost isn't properly hidden when the clippboard is deselected
+-- 		it happens consistently after coppying to clipboard
+-- 		maybe even after setting fixed pos to nil
+-- TODO: multiplier for placement distance based on schem size should be a player option not a tool option
+-- TODO: button to clear schematic from clipboard
+-- TODO: when in fixed_pos mode add buttons to the formspec for moving pos along axes for finetunig of large schems
+-- TODO: UNDO might not work properly if the affected area isn't completely loaded
 
 local schem_path = minetest.get_worldpath() .. "/schematics"
 minetest.mkdir(schem_path)
 
 
-local invi = "wb_pixel.png^[opacity:0"
-minetest.register_entity(modprefix .."empty", {
-	pointable = false,
-	visual = "cube",
-	use_texture_alpha = true,
-	textures = {invi, invi, invi, invi, invi, invi},
-	-- is_visible = true,
-	static_save = false,
-})
-minetest.register_entity(modprefix .."preview", {
-	pointable = false,
-	visual = "item",
-	wield_item = "air",
-	visual_size = {x = 2/3 + 0.001, y = 2/3 + 0.001, z = 2/3 + 0.001},
-	use_texture_alpha = true,
-	-- is_visible = true,
-	-- backface_culling = false,
-	glow = -1,
-	static_save = false,
-})
-
--- preview section
-
-local function delete_preview(player)
-	local obj = players[player].obj
-	for _, child in pairs(obj:get_children()) do
-		child:remove()
-	end
-	obj:remove()
-	players[player].obj = nil
-end
-
 local vector_1 = vector.new(1, 1, 1)
-local function make_preview(player, pos)
-	if not pos then pos = player:get_pos() end
-
-	if players[player].obj then
-		delete_preview(player)
-	end
-
-	local schem = players[player].schem
-	local root = minetest.add_entity(pos, modprefix .."empty")
-	players[player].obj = root
-	local va = VoxelArea:new({MinEdge = vector_1, MaxEdge = schem.size})
-
-	local nnodes = 0
-	for k, v in pairs(schem.data) do
-		if v.name ~= "air" then
-			nnodes = nnodes + 1
-		end
-	end
-
-	for i in va:iterp(vector_1, schem.size) do
-		local name = schem.data[i].name
-		-- TODO: instead of randomly hide nodes
-		-- 		1) completely enclosed
-		-- 		2) cut out entire slices, so the rest remains more cohesive
-		if name ~= "air" and math.random() < (1000/nnodes) then
-			local prev = minetest.add_entity(pos, modprefix .."preview")
-			prev:set_properties({
-				wield_item = name,
-			})
-			prev:set_attach(root, nil, (va:position(i) - vector_1) * 10)
-		end
-	end
-end
-
-local function hide_preview(player)
-	local p_data = players[player]
-	p_data.visible = false
-	for _, child in pairs(p_data.obj:get_children()) do
-		child:set_properties({is_visible = false})
-	end
-	p_data.obj:set_attach(player)
-end
-
-local function reveal_preview(player)
-	local p_data = players[player]
-	p_data.visible = true
-	p_data.obj:set_detach()
-	for _, child in pairs(p_data.obj:get_children()) do
-		child:set_properties({is_visible = true})
-	end
-	if p_data.fixed_pos then
-		-- WARNING: for some reason larger previews fail to be moved
-		p_data.obj:set_pos(p_data.fixed_obj_pos)
-	end
-end
-
--- -----------------------------------------------
 
 -- preview positioning section
 local function move_preview(player, pos)
 	local p_data = players[player]
-	if p_data.fixed_pos then return end
-	pos = pos + p_data.options.offset
-	if not pos:equals(p_data.obj:get_pos()) then
-		p_data.obj:set_pos(pos)
-	end
+	if p_data.fixed_pos or pos == p_data.ghost.pos then return end
+	p_data.ghost:set_placement(pos)
 end
 
--- options section
 local function update_flag_string(player)
 	local opt = players[player].options
 
@@ -126,43 +40,20 @@ local function update_flag_string(player)
 	opt.flag_string = table.concat(t, ", ")
 end
 
-local function update_offset(player)
-	local opt = players[player].options
-		opt.offset = vector.new(0, 0, 0)
-
-	local size = table.copy(players[player].schem.size)
-	if opt.rot == 90 then
-		opt.offset.z = opt.offset.z + size.x - 1
-		size.x, size.z = size.z, size.x
-	elseif opt.rot == 180 then
-		opt.offset.x = opt.offset.x + size.x - 1
-		opt.offset.z = opt.offset.z + size.z - 1
-	elseif opt.rot == 270 then
-		opt.offset.x = opt.offset.x + size.z - 1
-		size.x, size.z = size.z, size.x
-	end
-
-	for flag, bool in pairs(opt.flags) do
-		local axis = flag:sub(-1)
-		if opt.flags[flag] then
-			opt.offset[axis] = opt.offset[axis] - math.floor((size[axis] - 1)/2)
-		end
-	end
-end
-
 local function rotate_schematic(player, angle)
 	local p_data = players[player]
+	if not p_data.ghost then return end
+
 	local rot = p_data.options.rot
 	rot = rot + angle
 	if rot > 270 then rot = rot - 360 end
 	if rot < 0 then rot = rot + 360 end
 	p_data.options.rot = rot
 
-	p_data.obj:set_rotation(vector.new(0, -math.rad(rot), 0))
-	update_offset(player)
+	p_data.ghost:set_placement(nil, rot)
 end
 
--- TODO: function for making schematics from two possibtions
+
 -- clipboard section
 local function copy_area_to_clipboard(player)
 	local pos1, pos2 = world_builder.get_area(player)
@@ -170,44 +61,36 @@ local function copy_area_to_clipboard(player)
 		minetest.chat_send_player(player:get_player_name(), "You first must select an area to copy.")
 		return
 	end
+	local p_data = players[player]
+	p_data.fixed_pos = nil
 
-	local minp, maxp = vector.sort(pos1, pos2)
-	local va = VoxelArea:new({MinEdge = minp, MaxEdge = maxp})
 
-	local air  = players[player].options.place_air
+	local place_air  = p_data.options.place_air
 
-	local data = {}
-	for i in va:iterp(minp, maxp) do
-		local node = minetest.get_node(va:position(i))
-		node.param1 = nil
-		if node.name == "air" then
-			node.prob = air and 255 or 0
-		end
-		data[i] = node
-	end
+	local schem = world_builder.schematics.make_schematic(pos1, pos2, place_air and 255 or 0)
+	p_data.schem = schem
 
-	local schem = players[player].schem
-	schem.size = va:getExtent()
-	schem.data = data
+	p_data.distance = math.max(schem.size.x, schem.size.y, schem.size.z)/1.5 + 3
+	p_data.options.rot = 0
+	p_data.formspec.name = "un-named"
 
-	players[player].distance = math.max(schem.size.x, schem.size.y, schem.size.z)/1.5 + 3
-	players[player].options.rot = 0
-	players[player].formspec.name = "un-named"
-	update_offset(player)
-	make_preview(player)
+	if p_data.ghost then p_data.ghost:delete() end
+	local ghost = world_builder.schem_prev.new(schem, player)
+	ghost:set_placement(nil, nil, p_data.options.flags)
+	p_data.ghost = ghost
 end
 
 local function place_from_clipboard(player, pos)
 	local p_data = players[player]
 	pos = p_data.fixed_pos or pos
 	p_data.fixed_pos = nil
-	p_data.fixed_obj_pos = nil
 
 
 	local schem = p_data.schem
 	local options = p_data.options
 	if not schem.data then
 		minetest.chat_send_player(player:get_player_name(), "Nothing to place. The clipboard is empty.")
+		return
 	end
 
 	do
@@ -225,18 +108,7 @@ local function place_from_clipboard(player, pos)
 		end
 
 		local maxp = minp + (size - vector_1)
-
-		local va = VoxelArea:new({MinEdge = minp, MaxEdge = maxp})
-		local data = {}
-		for i in va:iterp(minp, maxp) do
-			local node = minetest.get_node(va:position(i))
-			node.param1 = nil
-			data[i] = node
-		end
-		local undo_schem = {
-			size = va:getExtent(),
-			data = data,
-		}
+		local undo_schem = world_builder.schematics.make_schematic(minp, maxp)
 		p_data.undo = {
 			schem = undo_schem,
 			pos = minp,
@@ -251,7 +123,6 @@ end
 local function get_schem_list(player)
 	local list = minetest.get_dir_list(schem_path, false)
 	players[player].formspec.list = list
-	players[player].formspec.selected = nil
 
 	local s = "textlist[0,1;4,4;schem_select;"
 	for k, v in pairs(list) do
@@ -271,6 +142,7 @@ local function show_clipboard_fs(player)
 	.. "formspec_version[6]"
 	.. "size[4.5,9.5,false]"
 	.. "container[0.25,0.25]"
+	.. "set_focus[place_air;true]"
 	.. "checkbox[0,0.25;place_air;place_air;" .. tostring(opt.place_air) .. "]"
 	.. "checkbox[0,0.75;force_placement;force_placement;" .. tostring(opt.force_placement) .. "]"
 	.. "checkbox[0,1.25;place_center_x;place_center_x;" .. tostring(opt.flags.place_center_x) .. "]"
@@ -295,7 +167,39 @@ local function show_clipboard_fs(player)
 	minetest.show_formspec(player:get_player_name(), modprefix .. "clipboard", fs)
 end
 
--- TODO: check that object exists before atempting to rotate it
+local function load_from_file(player, file)
+	local p_data = players[player]
+	p_data.fixed_pos = nil
+
+	local s = minetest.read_schematic(schem_path .. "/" .. file, {write_yslice_prob = "none"})
+
+	p_data.schem.data = s.data
+	p_data.schem.size = s.size
+
+	p_data.distance = math.max(s.size.x, s.size.y, s.size.z)/1.5 + 4
+	p_data.options.rot = 0
+
+	for _, node in pairs(s.data) do
+		if node.name == "air" then
+			if node.prob == 0 then
+				p_data.options.place_air = false
+			elseif node.prob >= 254 then
+				p_data.options.place_air = true
+			end
+			break
+		end
+	end
+
+	p_data.formspec.name = file:sub(1, -5)
+
+	-- make_preview(player)
+	if p_data.ghost then p_data.ghost:delete() end
+	local ghost = world_builder.schem_prev.new(p_data.schem, player)
+	ghost:set_placement(nil, nil, players[player].options.flags)
+	p_data.ghost = ghost
+	show_clipboard_fs(player)
+end
+
 local function clipboard_lmb(player)
 	if player:get_player_control().aux1 then
 		copy_area_to_clipboard(player)
@@ -310,12 +214,12 @@ local function clipboard_rmb(player)
 	local p_data = players[player]
 	local pos = vector.round(world_builder.get_looked_pos(player, players[player].distance))
 	if player:get_player_control().aux1 then
-		if p_data.fixed_pos then
-			p_data.fixed_pos = nil
-			p_data.fixed_obj_pos = nil
-		elseif p_data.obj then
-			p_data.fixed_pos = pos
-			p_data.fixed_obj_pos = p_data.obj:get_pos()
+		if p_data.ghost then
+			if p_data.fixed_pos then
+				p_data.fixed_pos = nil
+			elseif p_data.ghost.obj then
+				p_data.fixed_pos = pos
+			end
 		end
 	elseif player:get_player_control().sneak then
 		rotate_schematic(player, 90)
@@ -359,7 +263,6 @@ minetest.register_on_joinplayer(function(player, last_login)
 			rot = 0,
 			force_placement = false,
 			place_air = false,
-			offset = vector.new(0, 0, 0),
 			flags = {
 				place_center_x = true,
 				place_center_y = false,
@@ -369,10 +272,9 @@ minetest.register_on_joinplayer(function(player, last_login)
 		},
 		-- preview stuff
 		fixed_pos = nil,
-		fixed_obj_pos = nil,
 		distance = 5,
 		obj = nil,
-		visible = nil,
+		visible = true,
 
 		-- saving and loading
 		formspec = {
@@ -390,23 +292,29 @@ minetest.register_on_joinplayer(function(player, last_login)
 end)
 
 minetest.register_on_leaveplayer(function(player, timed_out)
-	delete_preview(player)
+	if players[player].ghost then players[player].ghost:delete() end
 	players[player] = nil
 end)
 
 minetest.register_globalstep(function(dtime)
 	for player, p_data in pairs(players) do
-		if p_data.obj then
+		if p_data.ghost then
 			if player:get_wielded_item():get_name() == modprefix .."clipboard" then
 				if not p_data.visible then
-					reveal_preview(player)
+					p_data.visible = true
+					p_data.ghost:show()
+						if p_data.fixed_pos then
+							-- WARNING: for some reason larger previews fail to be moved
+							p_data.ghost:set_placement(p_data.fixed_pos)
+						end
 				end
 
 				local new_pos = vector.round(world_builder.get_looked_pos(player, p_data.distance))
 				move_preview(player, new_pos)
 
 			elseif p_data.visible then
-				hide_preview(player)
+				p_data.visible = false
+				p_data.ghost:hide()
 			end
 		end
 	end
@@ -417,35 +325,6 @@ local function print_table(t)
 		minetest.chat_send_all(type(k) .. " : " .. tostring(k) .. " | " .. type(v) .. " : " .. tostring(v))
 		-- print(type(k) .. " : " .. tostring(k) .. " | " .. type(v) .. " : " .. tostring(v))
 	end
-end
-
-local function load_from_file(player, file)
-	local p_data = players[player]
-
-	local s = minetest.read_schematic(schem_path .. "/" .. file, {write_yslice_prob = "none"})
-
-	p_data.schem.data = s.data
-	p_data.schem.size = s.size
-
-	p_data.distance = math.max(s.size.x, s.size.y, s.size.z)/1.5 + 4
-	p_data.options.rot = 0
-
-	for _, node in pairs(s.data) do
-		if node.name == "air" then
-			if node.prob == 0 then
-				p_data.options.place_air = false
-			elseif node.prob >= 254 then
-				p_data.options.place_air = true
-			end
-			break
-		end
-	end
-
-	p_data.formspec.name = file:sub(1, -5)
-
-	update_offset(player)
-	make_preview(player)
-	show_clipboard_fs(player)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
@@ -461,26 +340,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if fields.place_air then
 		opt.place_air = not opt.place_air
 		if not p_data.schem.data then return true end
-		if opt.place_air then
-			for i, node in pairs(p_data.schem.data) do
-				if node.name == "air" then
-					node.prob = 255
-				end
-			end
-		else
-			for i, node in pairs(p_data.schem.data) do
-				if node.name == "air" then
-					node.prob = 0
-				end
-			end
-		end
+		world_builder.schematics.set_node_probability(p_data.schem, "air", opt.place_air and 255 or 0)
 	end
 
 	for flag, bool in pairs(opt.flags) do
 		if fields[flag] then
 			opt.flags[flag] = not opt.flags[flag]
 			if not p_data.schem.data then return true end
-			update_offset(player)
+			p_data.ghost:set_placement(nil, nil, opt.flags)
 			update_flag_string(player)
 		end
 	end
@@ -531,11 +398,16 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if fields.schem_select and fields.schem_select:find("CHG") then
 		local index = tonumber(fields.schem_select:match("%d+"))
 		p_data.formspec.selected = index
+		p_data.formspec.name = p_data.formspec.list[index]:sub(1, -5)
+		show_clipboard_fs(player)
 	end
 	if fields.schem_select and fields.schem_select:find("DCL") then
 		local index = tonumber(fields.schem_select:match("%d+"))
 		local file = p_data.formspec.list[index]
 		load_from_file(player, file)
+	end
+	if fields.quit then
+		p_data.formspec.selected = nil
 	end
 
 	return true

@@ -13,6 +13,7 @@ Brush:
 		infalte volume
 		deflate volume
 		? take inspiration from blenders sculpt brushes
+		some sort of distort that adds roughness
 	modifiers
 		only air exposed
 		only top surface
