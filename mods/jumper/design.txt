@@ -28,6 +28,8 @@ consider removing momentum when teleporting to checkpoint
 
 maybe have secrets in the form of people hidden in odd places which give you a random phrase when talked to
 
+Sneaking as an ulockable upgrade.
+
 TODO:
 nodes
 	a trophy to put at the end of the course
@@ -46,6 +48,8 @@ nodes
 		with option to make it temporary?
 
 	slippery ice - has no friction(po.speed = 0)
+
+	invissible light source
 
 item
     golden feather - add/set velocity in direction of look, has cooldown
